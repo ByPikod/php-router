@@ -244,7 +244,7 @@ class RouterTest extends Router
     }
 
     /**
-     * Test group
+     * Test wildcards
      * @test Route wildcard test
      * @since 1.0.0
      */
@@ -264,5 +264,33 @@ class RouterTest extends Router
 
         $this->run();
         $test->assertTrue($testPassed);
+    }
+
+    /**
+     * This test expects Router to not execute next route unless next is called.
+     * @test Next route test
+     * @since 1.0.0
+     */
+    public function nextRouteTest(Test $test): void
+    {
+        // Clear the router
+        $this->clear();
+
+        // Test route
+        $_SERVER['REQUEST_URI'] = '/routeNextTest';
+        $routeCalled = false;
+        $nextCalled = false;
+        $this->route('/routeNextTest', function (Context $context) use (&$routeCalled) {
+            $routeCalled = true;
+            echo "sa";
+        });
+        $this->use(function (Context $context) use (&$nextCalled) {
+            $nextCalled = true;
+            $context->next();
+        });
+
+        $this->run();
+        $test->assertTrue($routeCalled);
+        $test->assertFalse($nextCalled);
     }
 }
