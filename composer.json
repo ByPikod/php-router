@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.0",
     "name": "bypikod/php-router",
     "description": "Simple router library with PHP",
     "type": "project",
