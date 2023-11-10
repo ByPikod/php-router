@@ -1,0 +1,39 @@
+{
+    "version": "1.0.1",
+    "name": "bypikod/php-router",
+    "description": "Simple router library with PHP",
+    "type": "project",
+    "license": "MIT",
+    "keywords": ["php", "router", "web"],
+    "authors": [
+        {
+            "name": "Yahya Batulu",
+            "email": "admin@yahyabatulu.com"
+        }
+    ],
+    "source": {
+        "url": "https://github.com/ByPikod/php-router",
+        "type": "git",
+        "reference": "master"
+    },
+    "support": {
+        "email": "admin@yahyabatulu.com",
+        "source": "https://github.com/ByPikod/php-router",
+        "issues": "https://github.com/ByPikod/php-router/issues"
+    },
+    "homepage": "https://github.com/ByPikod/php-router#readme",
+    "bin": "bin",
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    },
+    "require": {
+        "bypikod/php-test": "^1.0.1"
+    }
+}

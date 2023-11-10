@@ -1,0 +1,67 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3f72fec0338250036ad1fe0ace0960db",
+    "packages": [
+        {
+            "name": "bypikod/php-test",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ByPikod/php-test",
+                "reference": "master"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ByPikod/php-test/zipball/a5b080507803af9044f75fa5a3b52b670b7c3630",
+                "reference": "a5b080507803af9044f75fa5a3b52b670b7c3630",
+                "shasum": ""
+            },
+            "bin": [
+                "bin"
+            ],
+            "type": "project",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yahya Batulu",
+                    "email": "admin@yahyabatulu.com"
+                }
+            ],
+            "description": "Very simple testing library with PHP",
+            "homepage": "https://github.com/ByPikod/php-test#readme",
+            "keywords": [
+                "php",
+                "suite",
+                "test",
+                "unit"
+            ],
+            "support": {
+                "email": "admin@yahyabatulu.com",
+                "issues": "https://github.com/ByPikod/php-test/issues",
+                "source": "https://github.com/ByPikod/php-test"
+            },
+            "time": "2023-11-10T12:42:14+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}
