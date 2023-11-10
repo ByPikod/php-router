@@ -1,4 +1,4 @@
-# PHP Test
+# PHP Router
 
 ![License](https://img.shields.io/github/license/ByPikod/php-router.svg?style=for-the-badge)
 ![Maintaned](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge)
@@ -7,7 +7,7 @@
 ![Stars](https://img.shields.io/github/stars/ByPikod/php-router.svg?style=for-the-badge)
 ![Watchers](https://img.shields.io/github/watchers/ByPikod/php-router.svg?style=for-the-badge)
 
-Simple PHP test library for unit testing.
+Simple PHP router library for routing.
 
 > [!Warning]
 > Minimum PHP version for this package is PHP7.
