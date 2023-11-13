@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3f72fec0338250036ad1fe0ace0960db",
+    "content-hash": "ab2248142ec3bd81fc6ca10b1ab80923",
     "packages": [
         {
             "name": "bypikod/php-test",

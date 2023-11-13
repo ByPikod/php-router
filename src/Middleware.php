@@ -6,7 +6,7 @@ namespace PHPRouter;
  * MiddlewareChain interface
  * This is used in classes that allow adding middlewares.
  * @see MiddlewareChain
- * @see RouteGroup
+ * @see SubRouter,
  * @since 1.0.0
  */
 interface Middleware

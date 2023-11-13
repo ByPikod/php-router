@@ -53,46 +53,6 @@ class RouterTest extends Router
     }
 
     /**
-     * Result is expected to contain all the executables of a branch.
-     * @test Method Test - getExecutablesFromBranch
-     * @since 1.0.0
-     */
-    public function getExecutablesFromBranchTest(Test $test): void
-    {
-        // Clear the router
-        $this->clear();
-
-        // To check if the executables are returned correctly
-        $fill = [];
-        $fakeFunc = function () use (&$fill) {
-            $fill[] = true;
-        };
-
-        // Create fake branch
-        $branch = [
-            new Route('test', $fakeFunc),
-            new Route('test', $fakeFunc),
-            $fakeFunc,
-            'a' => 'test',
-            'b' => 'test',
-            'test'
-        ];
-
-        // Get executables and execute them
-        $executables = self::getExecutablesFromBranch($branch, true);
-        foreach ($executables as $executable) {
-            if (is_callable($executable)) $executable();
-            if ($executable instanceof Route) {
-                ($executable->callback)();
-            }
-        }
-
-        // Check if the executables are correct
-        $test->assertEqual(3, sizeof($fill));
-        $test->assertArrayEqual($fill, [true, true, true]);
-    }
-
-    /**
      * Test get executables
      * @test Method Test - getExecutables
      * @since 1.0.0
@@ -113,7 +73,7 @@ class RouterTest extends Router
         $this->route('/getExecutablesTest', $fakeFunc)->use($fakeFunc)->use($fakeFunc);
 
         // Get executables
-        $executables = $this->getExecutables('/getExecutablesTest');
+        $executables = $this->getExecutables(['getExecutablesTest']);
         foreach ($executables as $executable) {
             // Execute the executable
             if (is_callable($executable)) $executable();
@@ -282,7 +242,6 @@ class RouterTest extends Router
         $nextCalled = false;
         $this->route('/routeNextTest', function (Context $context) use (&$routeCalled) {
             $routeCalled = true;
-            echo "sa";
         });
         $this->use(function (Context $context) use (&$nextCalled) {
             $nextCalled = true;
