@@ -2,8 +2,6 @@
 
 namespace PHPRouter;
 
-use PHPRouter\Route;
-
 /**
  * Router class
  * @since 1.0.0
