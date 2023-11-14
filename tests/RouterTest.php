@@ -71,6 +71,7 @@ class RouterTest extends Router
         $this->use($fakeFunc);
         $this->use($fakeFunc, '/getExecutablesTest');
         $this->route('/getExecutablesTest', $fakeFunc)->use($fakeFunc)->use($fakeFunc);
+        $this->use($fakeFunc);
 
         // Get executables
         $executables = $this->getExecutables(['getExecutablesTest']);
@@ -83,8 +84,7 @@ class RouterTest extends Router
         }
 
         // Check if the executables are correct
-        $test->assertEqual(4, sizeof($fill));
-        $test->assertArrayEqual($fill, [true, true, true, true]);
+        $test->assertEqual(6, sizeof($fill));
     }
 
     /**
@@ -108,10 +108,11 @@ class RouterTest extends Router
         $this->use($fakeFunc);
         $this->use($fakeFunc, '/executablesTest');
         $this->route('/executablesTest', $fakeFunc)->use($fakeFunc)->use($fakeFunc);
+        $this->use($fakeFunc);
 
         // Run executables
         $this->executeTree('/executablesTest');
-        $test->assertEqual(sizeof($fill), 4);
+        $test->assertEqual(sizeof($fill), 6);
     }
 
     /**
@@ -204,29 +205,6 @@ class RouterTest extends Router
     }
 
     /**
-     * Test wildcards
-     * @test Route wildcard test
-     * @since 1.0.0
-     */
-    public function routeWildcardTest(Test $test): void
-    {
-        // Clear the router
-        $this->clear();
-
-        // Test route
-        $_SERVER['REQUEST_URI'] = '/routeWildcardTest/123';
-        $testPassed = false;
-
-        $this->route('/routeWildcardTest/:id', function (Context $context) use (&$testPassed) {
-            $testPassed = true;
-            $context->next();
-        });
-
-        $this->run();
-        $test->assertTrue($testPassed);
-    }
-
-    /**
      * This test expects Router to not execute next route unless next is called.
      * @test Next route test
      * @since 1.0.0
@@ -251,5 +229,28 @@ class RouterTest extends Router
         $this->run();
         $test->assertTrue($routeCalled);
         $test->assertFalse($nextCalled);
+    }
+
+    /**
+     * Test wildcards
+     * @test Route wildcard test
+     * @since 1.0.0
+     */
+    public function routeWildcardTest(Test $test): void
+    {
+        // Clear the router
+        $this->clear();
+
+        // Test route
+        $_SERVER['REQUEST_URI'] = '/routeWildcardTest/123';
+        $testPassed = false;
+
+        $this->route('/routeWildcardTest/:id', function (Context $context) use (&$testPassed) {
+            $testPassed = true;
+            $context->next();
+        });
+
+        $this->run();
+        $test->assertTrue($testPassed);
     }
 }

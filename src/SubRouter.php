@@ -28,7 +28,7 @@ class SubRouter implements Middleware
      * Seperate the path into an array of strings.
      * @param string $path The path to seperate.
      * @return array The array of strings.
-     * @example /test/:param/test -> [test, *, test]
+     * @example /test/:param/test -> [test, :param, test]
      * @since 1.0.0
      */
     protected static function seperatePath(string $path): array
@@ -40,13 +40,6 @@ class SubRouter implements Middleware
         $path = array_filter($path, function ($value) {
             return $value !== '';
         });
-
-        // Wildcard support (eg. /test/:param/test -> [test, *, test])
-        $path = array_map(function ($value) {
-            if (substr($value, 0, 1) === ':')
-                return '*';
-            return $value;
-        }, $path);
 
         return $path;
     }
@@ -90,9 +83,8 @@ class SubRouter implements Middleware
                 // Create new branch
                 $subRouter = new SubRouter($value);
                 $branch->executionTree[] = $subRouter;
-                $branch = $subRouter;
             }
-            $branch = &$branch[$value];
+            $branch = $subRouter;
         }
 
         return $branch;
@@ -103,14 +95,15 @@ class SubRouter implements Middleware
      * @param string $path The path to get the branch from.
      * @param bool $create Whether to create the branch if it doesn't exist or not.
      * @return array The branch.
+     * @return null If no branch found.
      * @example getBranch() -> $executionTree
      * @example getBranch('/test') -> $executionTree['test']
-     * @example getBranch('/test/:param') -> $executionTree['test']['*']
      * @since 1.0.0
      */
     protected function &getBranch(string $path = '', $create = true): array
     {
         $sb = $this->getSubRouter($path, $create);
+        if ($sb === null) throw new \Exception("Branch not found and couldn't be created.");
         return $sb->executionTree;
     }
 
@@ -185,10 +178,16 @@ class SubRouter implements Middleware
                 $executables[] = $value;
             } elseif ($value instanceof SubRouter) {
                 // if the value is a subrouter
-                if ($value->directoryName !== $path[0])
-                    // make sure SubRouter is the next directory in the path
+                $isWildcard = str_starts_with($value->directoryName, ':');
+                if (
+                    sizeof($path) < 1 || // if there are no more directories in the path
+                    !$isWildcard && // or the next directory is not a wildcard
+                    $value->directoryName !== $path[0] // and the next directory is not the subrouter's name
+                )
+                    // make sure SubRouter is not the next directory so we don't execute it
                     continue;
-                array_shift($path); // remove the first directory since it's going to be executed
+                var_dump($path);
+                $shifted = array_pop($path); // remove the first directory since it's going to be executed
                 $executables = array_merge($executables, $value->getExecutables());
             }
         }
