@@ -84,7 +84,7 @@ class SubRouter implements Middleware
         // Get branch
         $branch = &$this;
         foreach ($path as $value) {
-            $subRouter = $branch->getSubRouter($value);
+            $subRouter = $branch->findSubRouter($value);
             if (is_null($subRouter)) {
                 if (!$create) return null;
                 // Create new branch
