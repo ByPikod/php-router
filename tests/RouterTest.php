@@ -48,7 +48,7 @@ class RouterTest extends Router
 
         // Check assertions
         foreach ($assertions as $path => $expected) {
-            $test->assertArrayEqual(self::seperatePath($path), $expected);
+            $test->assertArrayEqual(Utilities::seperatePath($path), $expected);
         }
     }
 
@@ -113,6 +113,26 @@ class RouterTest extends Router
         // Run executables
         $this->executeTree('/executablesTest');
         $test->assertEqual(sizeof($fill), 6);
+    }
+
+    /**
+     * Find full path test
+     * @test Method Test - findFullPath
+     * @since 1.0.1
+     */
+    public function findFullPathTest(Test $test): void
+    {
+        // Clear the router
+        $this->clear();
+
+        // Add routes
+        $group = $this->group('/findFullPathTest');
+        $wildcardGroup = $group->group('/:id');
+
+        // Test if the full path is correct
+        $test->assertArrayEqual($this->findFullPath(), []);
+        $test->assertArrayEqual($group->findFullPath(), ['findFullPathTest']);
+        $test->assertArrayEqual($wildcardGroup->findFullPath(), ['findFullPathTest', ':id']);
     }
 
     /**
@@ -229,6 +249,30 @@ class RouterTest extends Router
         $this->run();
         $test->assertTrue($routeCalled);
         $test->assertFalse($nextCalled);
+    }
+
+    /**
+     * Test groups
+     * @test Router group test
+     * @since 1.0.1
+     */
+    public function groupTest(Test $test): void
+    {
+        // Clear the router
+        $this->clear();
+
+        // Test route
+        $_SERVER['REQUEST_URI'] = '/groupTest';
+        $testPassed = false;
+
+        $group = $this->group('/groupTest');
+        $group->route('/', function (Context $context) use (&$testPassed) {
+            $testPassed = true;
+            $context->next();
+        });
+
+        $this->run();
+        $test->assertTrue($testPassed);
     }
 
     /**

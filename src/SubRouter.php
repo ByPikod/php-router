@@ -12,35 +12,116 @@ namespace PHPRouter;
 class SubRouter implements Middleware
 {
     protected string $directoryName = ""; // The name of the current directory
+    protected SubRouter | null $parent = null; // The parent SubRouter
+    protected array $fullPath; // The full path of the SubRouter
     protected array $executionTree = [];
 
     /**
      * Constructor
      * @param string $directoryName The name of the current directory.
+     * @param SubRouter $parent The parent SubRouter.
      * @since 1.0.1
      */
-    protected function __construct(string $directoryName = "")
+    protected function __construct(string $directoryName = "", SubRouter $parent = null)
     {
         $this->directoryName = $directoryName;
+        $this->parent = $parent;
+        $this->fullPath = $this->findFullPath();
     }
 
     /**
-     * Seperate the path into an array of strings.
-     * @param string $path The path to seperate.
-     * @return array The array of strings.
-     * @example /test/:param/test -> [test, :param, test]
+     * Returns the full path which cached with findFullPath().
+     * @return array The full path.
+     * @see findFullPath()
+     * @since 1.0.1
+     */
+    public function getFullPath(): array
+    {
+        return $this->fullPath;
+    }
+
+    /**
+     * Returns the upper Router.
+     * @return SubRouter The upper Router.
+     * @since 1.0.1
+     */
+    public function getParent(): SubRouter
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Add middlewares
+     * @param callable $middleware The middleware to add.
+     * @return Middleware The middleware chain to allow adding middlewares.
      * @since 1.0.0
      */
-    protected static function seperatePath(string $path): array
+    public function use(callable $middleware, $path = ''): Middleware
     {
-        $path = trim($path, '/'); // Remove slashes from start and end
-        $path = explode('/', $path); // Seperate to parts by '/'
+        $this->getBranch($path)[] = $middleware;
+        return $this;
+    }
 
-        // Remove empty strings (eg. /test//test -> [test, test])
-        $path = array_filter($path, function ($value) {
-            return $value !== '';
+    /**
+     * Add route
+     * @param string $path The path of the route.
+     * @param callable $callback The callback of the route.
+     * @return MiddlewareChain The middleware adder to allow adding middlewares to the route.
+     * @since 1.0.0
+     */
+    public function route(string $path, callable $callback): Middleware
+    {
+        $subRouter = $this->getSubRouter($path);
+        $route = new Route($subRouter, $callback);
+        $subRouter->executionTree[] = $route;
+        return new MiddlewareChain(function ($middleware) use ($route) {
+            $route->middlewares[] = $middleware;
         });
+    }
 
+    /**
+     * Add route group
+     * @param string $path The path of the route group.
+     * @return SubRouter The route group.
+     * @since 1.0.0
+     * @todo Implement this function
+     */
+    public function group(string $path): SubRouter
+    {
+        return $this->getSubRouter($path);
+    }
+
+    /**
+     * Removes all routes and middlewares
+     * @since 1.0.0
+     */
+    public function clear(): void
+    {
+        $this->executionTree = [];
+    }
+
+    /**
+     * Returns the full path of the SubRouter.
+     * This is used to find the full path of the SubRouter.
+     * You can use getFullPath() to get cached full path.
+     * @return array The full path.
+     * @see getFullPath()
+     * @since 1.0.1
+     */
+    protected function findFullPath(): array
+    {
+        $path = [];
+        $parent = $this;
+        while (!is_null($parent)) {
+            $dirName = $parent->directoryName;
+            if ($dirName === '') {
+                $parent = $parent->parent;
+                continue;
+            }
+            $path[] = $dirName;
+            $parent = $parent->parent;
+        }
+        $path = array_reverse($path);
         return $path;
     }
 
@@ -72,7 +153,7 @@ class SubRouter implements Middleware
     protected function getSubRouter(string $path = '', $create = true): SubRouter | null
     {
         // Seperate to parts
-        $path = self::seperatePath($path);
+        $path = Utilities::seperatePath($path);
 
         // Get branch
         $branch = &$this;
@@ -81,7 +162,7 @@ class SubRouter implements Middleware
             if (is_null($subRouter)) {
                 if (!$create) return null;
                 // Create new branch
-                $subRouter = new SubRouter($value);
+                $subRouter = new SubRouter($value, $branch);
                 $branch->executionTree[] = $subRouter;
             }
             $branch = $subRouter;
@@ -108,46 +189,6 @@ class SubRouter implements Middleware
     }
 
     /**
-     * Add middlewares
-     * @param callable $middleware The middleware to add.
-     * @return Middleware The middleware chain to allow adding middlewares.
-     * @since 1.0.0
-     */
-    public function use(callable $middleware, $path = ''): Middleware
-    {
-        $this->getBranch($path)[] = $middleware;
-        return $this;
-    }
-
-    /**
-     * Add route
-     * @param string $path The path of the route.
-     * @param callable $callback The callback of the route.
-     * @return MiddlewareChain The middleware adder to allow adding middlewares to the route.
-     * @since 1.0.0
-     */
-    public function route(string $path, callable $callback): Middleware
-    {
-        $route = new Route($path, $callback);
-        $this->getBranch($path)[] = $route;
-        return new MiddlewareChain(function ($middleware) use ($route) {
-            $route->middlewares[] = $middleware;
-        });
-    }
-
-    /**
-     * Add route group
-     * @param string $path The path of the route group.
-     * @return SubRouter The route group.
-     * @since 1.0.0
-     * @todo Implement this function
-     */
-    public function group(string $path): SubRouter
-    {
-        return $this->getSubRouter($path);
-    }
-
-    /**
      * Returns the executables of the specified path.
      * That list contains the top level middlewares and the routes.
      * @param array $path The path to get the executables from.
@@ -157,7 +198,6 @@ class SubRouter implements Middleware
     protected function getExecutables(array $path = []): array
     {
         $branch = $this->executionTree;
-
         $executables = [];
         // this loop will get us every middlewares and routes in the path ordered
         foreach ($branch as $key => $value) {
@@ -178,17 +218,17 @@ class SubRouter implements Middleware
                 $executables[] = $value;
             } elseif ($value instanceof SubRouter) {
                 // if the value is a subrouter
-                $isWildcard = str_starts_with($value->directoryName, ':');
+                $dirName = $value->directoryName;
+                $isWildcard = str_starts_with($dirName, ':');
                 if (
                     sizeof($path) < 1 || // if there are no more directories in the path
                     !$isWildcard && // or the next directory is not a wildcard
-                    $value->directoryName !== $path[0] // and the next directory is not the subrouter's name
+                    $dirName !== $path[0] // and the next directory is not the subrouter's name
                 )
                     // make sure SubRouter is not the next directory so we don't execute it
                     continue;
-                var_dump($path);
-                $shifted = array_pop($path); // remove the first directory since it's going to be executed
-                $executables = array_merge($executables, $value->getExecutables());
+                array_pop($path); // remove the first directory since it's going to be executed
+                $executables = array_merge($executables, $value->getExecutables($path));
             }
         }
 
@@ -202,7 +242,7 @@ class SubRouter implements Middleware
      */
     protected function executeTree(string $path): void
     {
-        $path = self::seperatePath($path);
+        $path = Utilities::seperatePath($path);
         $executables = $this->getExecutables($path);
 
         // If no executables found, return 404
@@ -222,14 +262,5 @@ class SubRouter implements Middleware
             $fc($ctx); // execute the next executable
         });
         $executables[0]($ctx); // execute the first executable
-    }
-
-    /**
-     * Removes all routes and middlewares
-     * @since 1.0.0
-     */
-    public function clear(): void
-    {
-        $this->executionTree = [];
     }
 }
