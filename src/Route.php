@@ -42,7 +42,7 @@ class Route
         $routeURL = $this->parent->getFullPath();
         $url = Utilities::seperatePath($url);
         $params = [];
-        foreach ($path as $index => $pathPart) {
+        foreach ($url as $index => $pathPart) {
             if (preg_match("/^:/", $pathPart)) {
                 $params[substr($pathPart, 1)] = $url[$index];
             }

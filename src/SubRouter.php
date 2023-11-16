@@ -2,6 +2,8 @@
 
 namespace PHPRouter;
 
+use PHPRouter\Utilities;
+
 /**
  * RouteGroup interface
  * This is used to allow the router to add route groups and routes.
@@ -192,10 +194,11 @@ class SubRouter implements Middleware
      * Returns the executables of the specified path.
      * That list contains the top level middlewares and the routes.
      * @param array $path The path to get the executables from.
+     * @param array $params The parameters extracted from the URL. This is used to pass parameters to the route.
      * @return array The executables.
      * @since 1.0.0
      */
-    protected function getExecutables(array $path = []): array
+    protected function getExecutables(array $path = [], $params = []): array
     {
         $branch = $this->executionTree;
         $executables = [];
@@ -208,9 +211,8 @@ class SubRouter implements Middleware
                     // only routes in the last directory will be executed
                     continue;
                 // add route middlewares to the list as well
-                foreach ($value->middlewares as $middleware) {
+                foreach ($value->middlewares as $middleware)
                     $executables[] = $middleware;
-                }
                 // route executed after middlewares
                 $executables[] = $value->callback;
             } elseif (is_callable($value)) {

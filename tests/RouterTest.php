@@ -3,6 +3,7 @@
 namespace PHPRouter;
 
 use PHPTest\Test;
+use PHPRouter\Utilities;
 
 /**
  * RouterTest class
@@ -278,6 +279,7 @@ class RouterTest extends Router
     /**
      * Test wildcards
      * @test Route wildcard test
+     * @bench 1000
      * @since 1.0.0
      */
     public function routeWildcardTest(Test $test): void
